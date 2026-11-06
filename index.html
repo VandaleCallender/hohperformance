@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HOH Performance | K-Swaps, B-Swaps, Wiring, Tunes | Treybuilt</title>
+<meta name="description" content="HOH Performance: Honda specialist for K-swaps, B-swaps, custom wiring harnesses, diagnostics, fabrication and tunes. Builder. Fabricator. Dreamer.">
+<meta property="og:title" content="HOH Performance | パフォーマンス">
+<meta property="og:description" content="K-swaps. B-swaps. Custom wiring. Diagnostics. Tunes. Treybuilt.">
+<meta property="og:image" content="assets/og.png">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Noto+Sans+JP:wght@500;700;900&family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050507; --bg2:#0b0b10; --panel:#0f0f16; --line:#1e1e2a; --line2:#2a2a3a;
+  --ink:#f3f2f7; --mute:#9a98ab; --dim:#5d5b6e;
+  --cyan:#19c6ff; --blue:#2f6bff; --violet:#8b3dff; --pink:#ff2f9e; --red:#ff2e3e; --spoon:#ffd400;
+  --grad:linear-gradient(90deg,var(--cyan),var(--blue) 25%,var(--violet) 50%,var(--pink) 75%,var(--red));
+  --display:"Russo One",system-ui,sans-serif; --body:"Chakra Petch",system-ui,sans-serif;
+  --jp:"Noto Sans JP",sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-x:clip}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+::selection{background:var(--pink);color:#000}
+.wrap{width:min(1240px,92vw);margin:0 auto}
+.grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.jp{font-family:var(--jp)}
+.mono{font-family:var(--mono)}
+/* scanline grain */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:100;opacity:.05;
+  background:repeating-linear-gradient(0deg,#fff 0 1px,transparent 1px 3px)}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;transition:.3s;border-bottom:1px solid transparent}
+.nav.scrolled{background:rgba(5,5,7,.82);backdrop-filter:blur(14px);border-color:var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:74px}
+.nav-logo svg{height:46px;width:auto}
+.nav-links{display:flex;gap:30px;align-items:center;font-weight:600;font-size:14px;letter-spacing:.14em;text-transform:uppercase}
+.nav-links a{color:var(--mute);transition:.2s;position:relative}
+.nav-links a:hover{color:var(--ink)}
+.nav-links a.btn{color:#fff}
+.nav-links a:not(.btn)::after{content:"";position:absolute;left:0;right:100%;bottom:-6px;height:2px;background:var(--grad);transition:.3s}
+.nav-links a:not(.btn):hover::after{right:0}
+.cart-btn{position:relative;display:flex;align-items:center;gap:8px;color:var(--ink)!important}
+.cart-count{background:var(--pink);color:#000;font-size:11px;font-weight:700;border-radius:20px;min-width:20px;height:20px;display:grid;place-items:center;padding:0 6px}
+.burger{display:none;width:44px;height:44px;flex-direction:column;justify-content:center;gap:6px;align-items:center}
+.burger span{width:24px;height:2px;background:var(--ink);transition:.3s}
+
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 28px;font-weight:700;font-size:14px;letter-spacing:.16em;text-transform:uppercase;position:relative;clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);transition:.25s}
+.btn-grad{background:var(--grad);color:#fff;background-size:200% 100%}
+.btn-grad:hover{background-position:100% 0;transform:translateY(-2px);filter:brightness(1.15)}
+.btn-ghost{background:#ffffff0d;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line2)}
+.btn-ghost:hover{background:#ffffff1a}
+.btn-sm{padding:10px 20px;font-size:12px}
+
+/* HERO */
+.hero{min-height:100vh;position:relative;display:flex;align-items:center;padding:120px 0 80px;overflow:hidden}
+.hero-bg{position:absolute;inset:0;z-index:0}
+.hero-bg .photo{position:absolute;right:-4%;top:0;bottom:0;width:62%;background:url(assets/yt-avatar.jpg) center/cover;opacity:.55;
+  mask-image:linear-gradient(90deg,transparent,#000 45%);-webkit-mask-image:linear-gradient(90deg,transparent,#000 45%);filter:saturate(.4) contrast(1.15)}
+.hero-bg .tint{position:absolute;inset:0;background:radial-gradient(60% 70% at 75% 50%,#8b3dff33,transparent 70%),radial-gradient(40% 40% at 90% 90%,#ff2f9e33,transparent),linear-gradient(0deg,var(--bg),transparent 30%)}
+.grid-floor{position:absolute;left:-50%;right:-50%;bottom:-10%;height:55%;transform:perspective(500px) rotateX(62deg);transform-origin:center bottom;
+  background-image:linear-gradient(var(--violet) 1px,transparent 1px),linear-gradient(90deg,var(--violet) 1px,transparent 1px);background-size:60px 60px;opacity:.22;
+  mask-image:linear-gradient(0deg,#000,transparent 85%);-webkit-mask-image:linear-gradient(0deg,#000,transparent 85%);animation:floor 3s linear infinite}
+@keyframes floor{to{background-position:0 60px}}
+.hero .wrap{position:relative;z-index:2}
+.eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:var(--mute);display:flex;align-items:center;gap:12px}
+.eyebrow::before{content:"";width:36px;height:2px;background:var(--grad)}
+.hero-logo{width:min(760px,96%);margin:22px 0 10px;filter:drop-shadow(0 0 40px #8b3dff55)}
+.hero h1{font-family:var(--display);font-weight:400;font-size:clamp(28px,4.2vw,56px);line-height:1.05;letter-spacing:.01em;text-transform:uppercase;max-width:820px;margin-top:8px}
+.hero p.lead{color:var(--mute);font-size:19px;max-width:560px;margin:22px 0 34px}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap}
+.hero-tags{display:flex;gap:10px;margin-top:46px;flex-wrap:wrap}
+.tag{font-family:var(--mono);font-size:12px;letter-spacing:.1em;padding:8px 14px;border:1px solid var(--line2);color:var(--mute);background:#0b0b10aa;text-transform:uppercase}
+.tag b{color:var(--ink);font-weight:600}
+.vert-jp{position:absolute;right:3vw;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;font-family:var(--jp);font-weight:900;font-size:clamp(40px,6vw,92px);letter-spacing:.1em;
+  -webkit-text-stroke:1px #ffffff22;color:transparent;z-index:1;user-select:none}
+.scroll-cue{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:3;font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:var(--dim);display:flex;flex-direction:column;align-items:center;gap:10px}
+.scroll-cue i{width:1px;height:40px;background:linear-gradient(var(--pink),transparent);animation:cue 1.8s infinite}
+@keyframes cue{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* TICKER */
+.ticker{border-block:1px solid var(--line);background:var(--bg2);overflow:hidden;padding:18px 0;position:relative}
+.ticker-track{display:flex;gap:46px;width:max-content;animation:tick 38s linear infinite;font-family:var(--display);font-size:22px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.ticker-track span{display:flex;align-items:center;gap:46px;color:#d8d6e4}
+.ticker-track span::after{content:"";width:10px;height:10px;background:var(--grad);transform:skewX(-20deg)}
+.ticker-track .jp{color:var(--pink);font-weight:700}
+@keyframes tick{to{transform:translateX(-50%)}}
+
+/* SECTIONS */
+section{position:relative}
+.sec{padding:130px 0}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;margin-bottom:60px;flex-wrap:wrap}
+.sec-num{font-family:var(--mono);font-size:13px;color:var(--pink);letter-spacing:.2em}
+.sec-title{font-family:var(--display);font-weight:400;font-size:clamp(38px,5.6vw,78px);line-height:.95;text-transform:uppercase;margin-top:12px}
+.sec-title .jp{display:block;font-size:.32em;letter-spacing:.3em;color:var(--dim);margin-top:14px;font-weight:700}
+.sec-sub{color:var(--mute);max-width:440px}
+
+/* SERVICES */
+.svc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.svc{background:var(--bg);padding:34px 28px 30px;position:relative;overflow:hidden;transition:.35s;min-height:300px;display:flex;flex-direction:column}
+.svc::before{content:"";position:absolute;inset:0;background:var(--grad);opacity:0;transition:.35s;mask-image:linear-gradient(180deg,#000,transparent 60%);-webkit-mask-image:linear-gradient(180deg,#000,transparent 60%)}
+.svc:hover::before{opacity:.16}
+.svc:hover{transform:translateY(-4px)}
+.svc .ico{width:48px;height:48px;margin-bottom:26px;position:relative}
+.svc .ico svg{width:100%;height:100%;stroke:url(#iconGrad);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.svc h3{font-family:var(--display);font-weight:400;font-size:22px;text-transform:uppercase;letter-spacing:.02em;position:relative}
+.svc .jp{font-size:12px;color:var(--dim);letter-spacing:.2em;margin:4px 0 14px;position:relative}
+.svc p{color:var(--mute);font-size:15px;position:relative;flex:1}
+.svc .n{position:absolute;top:22px;right:24px;font-family:var(--mono);font-size:12px;color:var(--dim)}
+
+/* SWAPS */
+.swaps{background:var(--bg2);border-block:1px solid var(--line);overflow:hidden}
+.swap-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.swap{border:1px solid var(--line2);background:linear-gradient(180deg,#12121b,#0a0a0f);padding:36px 32px;position:relative;overflow:hidden;transition:.35s}
+.swap:hover{border-color:transparent;box-shadow:0 0 0 1px var(--violet),0 30px 80px -30px #8b3dff88}
+.swap.feat{box-shadow:0 0 0 1px var(--pink),0 30px 80px -30px #ff2f9e66}
+.swap .big{font-family:var(--display);font-size:120px;line-height:.8;position:absolute;right:-8px;top:14px;color:transparent;-webkit-text-stroke:1px #ffffff14;font-style:italic}
+.swap .label{font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--pink);text-transform:uppercase}
+.swap h3{font-family:var(--display);font-weight:400;font-size:38px;text-transform:uppercase;line-height:1;margin:14px 0 6px}
+.swap .engines{font-family:var(--mono);font-size:13px;color:var(--mute);margin-bottom:24px}
+.swap ul{list-style:none;display:grid;gap:11px;margin-bottom:30px}
+.swap li{display:flex;gap:12px;font-size:15px;color:#cfcddc}
+.swap li::before{content:"";flex:none;width:8px;height:8px;margin-top:8px;background:var(--grad);transform:skewX(-20deg)}
+.swap .chassis{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:28px}
+.swap .chassis span{font-family:var(--mono);font-size:11px;padding:5px 9px;border:1px solid var(--line2);color:var(--mute)}
+.badge{position:absolute;top:0;right:0;background:var(--grad);font-size:11px;font-weight:700;letter-spacing:.2em;padding:7px 16px;text-transform:uppercase}
+
+/* BUILDER */
+.builder{display:grid;grid-template-columns:1.25fr 1fr;gap:0;border:1px solid var(--line2);margin-top:80px;background:var(--bg)}
+.b-left{padding:44px 44px 40px;border-right:1px solid var(--line2)}
+.b-right{padding:44px;background:radial-gradient(80% 60% at 70% 0%,#8b3dff22,transparent),#08080c;display:flex;flex-direction:column}
+.b-title{font-family:var(--display);font-size:30px;text-transform:uppercase;line-height:1.05}
+.b-step{margin-top:30px}
+.b-step h4{font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--mute);text-transform:uppercase;margin-bottom:12px;font-weight:400}
+.b-step h4 b{color:var(--pink);font-weight:600;margin-right:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:10px 14px;border:1px solid var(--line2);font-size:14px;font-weight:600;color:#cfcddc;transition:.2s;background:#0d0d14}
+.chip small{display:block;font-family:var(--mono);font-size:10px;color:var(--dim);font-weight:400;letter-spacing:.06em}
+.chip:hover{border-color:var(--violet);color:#fff}
+.chip.on{border-color:transparent;background:linear-gradient(#0d0d14,#0d0d14) padding-box,var(--grad) border-box;border:1px solid transparent;color:#fff;box-shadow:0 0 24px -6px #ff2f9e88}
+.chip.on small{color:var(--pink)}
+.spec{font-family:var(--mono);font-size:13px;flex:1}
+.spec .row{display:flex;justify-content:space-between;gap:20px;padding:12px 0;border-bottom:1px dashed var(--line2)}
+.spec .row span:first-child{color:var(--dim);text-transform:uppercase;letter-spacing:.12em;font-size:11px;padding-top:2px}
+.spec .row span:last-child{text-align:right;color:var(--ink)}
+.b-right textarea,.field input,.field textarea,.field select{width:100%;background:#0d0d14;border:1px solid var(--line2);color:var(--ink);font:inherit;font-size:15px;padding:13px 14px;outline:none;transition:.2s}
+.b-right textarea{margin-top:20px;min-height:80px;resize:vertical}
+.b-right textarea:focus,.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--violet)}
+.b-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.b-note{font-size:12px;color:var(--dim);margin-top:14px;font-family:var(--mono)}
+
+/* PROCESS */
+.process{display:grid;grid-template-columns:repeat(5,1fr);gap:0;counter-reset:p;position:relative}
+.process::before{content:"";position:absolute;left:0;right:0;top:27px;height:1px;background:linear-gradient(90deg,var(--cyan),var(--violet),var(--red))}
+.step{padding-right:26px;position:relative}
+.step .dot{width:56px;height:56px;display:grid;place-items:center;background:var(--bg);border:1px solid var(--line2);font-family:var(--display);font-size:20px;margin-bottom:26px;position:relative;transform:skewX(-10deg)}
+.step .dot span{transform:skewX(10deg)}
+.step:hover .dot{background:var(--grad);border-color:transparent}
+.step h4{font-family:var(--display);font-weight:400;font-size:20px;text-transform:uppercase}
+.step .jp{font-size:12px;color:var(--pink);letter-spacing:.2em;margin:4px 0 10px}
+.step p{color:var(--mute);font-size:15px}
+
+/* BUILDS */
+.builds-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+.build{position:relative;overflow:hidden;border:1px solid var(--line);background:#000;cursor:pointer;min-height:300px}
+.build:nth-child(1){grid-column:span 7;grid-row:span 2;min-height:620px}
+.build:nth-child(2),.build:nth-child(3){grid-column:span 5}
+.build:nth-child(4),.build:nth-child(5),.build:nth-child(6){grid-column:span 4}
+.build img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:.6s;filter:saturate(.75) contrast(1.05)}
+.build:hover img{transform:scale(1.06);filter:saturate(1.1)}
+.build::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#000 5%,#0008 45%,transparent)}
+.build .meta{position:absolute;left:0;right:0;bottom:0;padding:26px 28px;z-index:2}
+.build .code{font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--pink);text-transform:uppercase}
+.build h3{font-family:var(--display);font-weight:400;font-size:clamp(22px,2.4vw,34px);line-height:1.05;text-transform:uppercase;margin:8px 0}
+.build:nth-child(1) h3{font-size:clamp(30px,3.6vw,52px)}
+.build p{color:#bdbbcc;font-size:14px;max-width:440px}
+.build .eps{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap}
+.build .eps span{font-family:var(--mono);font-size:11px;padding:5px 9px;background:#ffffff14;backdrop-filter:blur(6px)}
+.play{position:absolute;top:22px;right:22px;z-index:2;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:#ffffff1a;backdrop-filter:blur(8px);transition:.3s}
+.build:hover .play{background:var(--grad);transform:scale(1.1)}
+.play svg{width:18px;fill:#fff;margin-left:3px}
+
+/* VIDEOS */
+.videos{background:var(--bg2);border-block:1px solid var(--line)}
+.vid-filter{display:flex;gap:8px;flex-wrap:wrap}
+.vid-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.vid{cursor:pointer;group:1}
+.vid .th{position:relative;aspect-ratio:16/9;overflow:hidden;border:1px solid var(--line);background:#000}
+.vid .th img{width:100%;height:100%;object-fit:cover;transition:.5s;transform:scale(1.34)}
+.vid:hover .th img{transform:scale(1.42)}
+.vid .th .play{top:50%;left:50%;right:auto;transform:translate(-50%,-50%);width:46px;height:46px}
+.vid:hover .th .play{background:var(--grad)}
+.vid h4{font-size:15px;font-weight:600;margin-top:12px;line-height:1.35}
+.vid .cat{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;margin-top:4px}
+.vid.hide{display:none}
+
+/* MERCH */
+.merch-hero{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-bottom:70px}
+.merch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.prod{border:1px solid var(--line);background:var(--panel);transition:.35s;display:flex;flex-direction:column}
+.prod:hover{border-color:var(--line2);transform:translateY(-4px);box-shadow:0 40px 80px -40px #000}
+.prod .stage{aspect-ratio:1/1;position:relative;overflow:hidden;display:grid;place-items:center;background:radial-gradient(70% 60% at 50% 45%,#1d1b2b,#0a0a0f 75%)}
+.prod .stage svg.mock{width:82%;height:82%;transition:.6s cubic-bezier(.2,.8,.2,1)}
+.prod:hover .stage svg.mock{transform:scale(1.04) rotate(-1deg)}
+.prod .flip{position:absolute;bottom:14px;left:14px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;padding:7px 11px;border:1px solid var(--line2);background:#000a;color:var(--mute);text-transform:uppercase}
+.prod .flip:hover{color:#fff;border-color:var(--violet)}
+.prod .drop{position:absolute;top:14px;left:14px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;padding:6px 10px;background:var(--grad);color:#fff;text-transform:uppercase}
+.prod .info{padding:22px 22px 24px;display:flex;flex-direction:column;gap:14px;flex:1}
+.prod .top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.prod h3{font-family:var(--display);font-weight:400;font-size:20px;text-transform:uppercase;line-height:1.1}
+.prod .sub{font-size:13px;color:var(--mute);margin-top:4px}
+.prod .price{font-family:var(--mono);font-size:18px;font-weight:600}
+.swatches{display:flex;gap:8px}
+.sw{width:24px;height:24px;border-radius:50%;border:2px solid var(--line2);transition:.2s}
+.sw.on{border-color:#fff;box-shadow:0 0 0 2px var(--pink)}
+.sizes{display:flex;gap:6px;flex-wrap:wrap}
+.sz{min-width:40px;height:34px;padding:0 8px;border:1px solid var(--line2);font-family:var(--mono);font-size:12px;color:var(--mute)}
+.sz.on{background:#fff;color:#000;border-color:#fff}
+.prod .add{margin-top:auto;width:100%;justify-content:center}
+
+/* CART DRAWER */
+.drawer-bg{position:fixed;inset:0;background:#000a;backdrop-filter:blur(4px);z-index:80;opacity:0;pointer-events:none;transition:.3s}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100vw);background:var(--bg2);border-left:1px solid var(--line2);z-index:90;transform:translateX(100%);transition:.4s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column}
+.drawer.open{transform:none}.drawer-bg.open{opacity:1;pointer-events:auto}
+.drawer header{display:flex;justify-content:space-between;align-items:center;padding:24px 26px;border-bottom:1px solid var(--line)}
+.drawer header h3{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:22px}
+.drawer .items{flex:1;overflow:auto;padding:10px 26px}
+.citem{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)}
+.citem .mini{width:64px;height:64px;background:#14131d;display:grid;place-items:center}
+.citem .mini svg{width:85%;height:85%}
+.citem h5{font-size:15px;font-weight:600}
+.citem small{font-family:var(--mono);color:var(--dim);font-size:11px}
+.qty{display:flex;align-items:center;gap:10px;margin-top:6px;font-family:var(--mono);font-size:13px}
+.qty button{width:24px;height:24px;border:1px solid var(--line2)}
+.drawer footer{padding:22px 26px;border-top:1px solid var(--line)}
+.total{display:flex;justify-content:space-between;font-family:var(--mono);font-size:16px;margin-bottom:16px}
+.empty{color:var(--dim);text-align:center;padding:60px 0;font-family:var(--mono);font-size:13px}
+
+/* ABOUT */
+.about{display:grid;grid-template-columns:1fr 1.1fr;gap:80px;align-items:center}
+.about-img{position:relative;aspect-ratio:4/5}
+.about-img .ph{position:absolute;inset:0;background:url(assets/thumbs/ClKNlMhWJOw.jpg) 30% center/auto 136% no-repeat;filter:saturate(.95) contrast(1.05)}
+.about-img .frame{position:absolute;inset:-14px -14px 14px 14px;border:1px solid;border-image:var(--grad) 1;pointer-events:none}
+.about-img .stamp{position:absolute;right:-26px;bottom:40px;background:var(--bg);border:1px solid var(--line2);padding:16px 18px;font-family:var(--jp);writing-mode:vertical-rl;font-weight:900;font-size:24px;letter-spacing:.2em}
+.about h2{font-family:var(--display);font-weight:400;font-size:clamp(36px,4.6vw,64px);line-height:1;text-transform:uppercase}
+.about blockquote{font-size:22px;font-weight:500;margin:28px 0;padding-left:20px;border-left:3px solid;border-image:var(--grad) 1;line-height:1.4}
+.about p{color:var(--mute);margin-bottom:16px}
+.creds{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:30px}
+.creds div{background:var(--bg);padding:20px}
+.creds b{font-family:var(--display);font-weight:400;font-size:26px;display:block}
+.creds span{font-size:12px;color:var(--dim);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase}
+
+/* CONTACT */
+.contact{background:var(--bg2);border-top:1px solid var(--line);overflow:hidden}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:70px}
+.contact h2{font-family:var(--display);font-weight:400;font-size:clamp(44px,6.4vw,96px);line-height:.92;text-transform:uppercase}
+.links{display:grid;gap:12px;margin-top:40px}
+.links a{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border:1px solid var(--line2);transition:.25s;font-weight:600}
+.links a:hover{border-color:var(--pink);background:#ff2f9e0d;padding-left:30px}
+.links a small{font-family:var(--mono);font-weight:400;color:var(--mute);font-size:13px}
+.form{display:grid;gap:14px;align-content:start}
+.field label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);margin-bottom:8px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field textarea{min-height:130px;resize:vertical}
+
+footer.site{border-top:1px solid var(--line);padding:50px 0 40px;position:relative;overflow:hidden}
+footer.site .wrap{display:flex;justify-content:space-between;align-items:center;gap:30px;flex-wrap:wrap}
+footer.site .fl svg{height:54px;width:auto}
+footer.site small{font-family:var(--mono);color:var(--dim);font-size:12px}
+.giant{font-family:var(--display);font-size:34vw;line-height:.8;text-align:center;color:transparent;-webkit-text-stroke:1px #ffffff0d;user-select:none;margin-top:40px;white-space:nowrap;font-style:italic}
+
+/* toast + modal */
+.toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,140%);background:#111018;border:1px solid var(--line2);padding:14px 22px;z-index:120;font-size:14px;transition:.35s;display:flex;gap:10px;align-items:center}
+.toast.show{transform:translate(-50%,0)}
+.toast::before{content:"";width:8px;height:8px;background:var(--grad);transform:skewX(-20deg)}
+.modal{position:fixed;inset:0;z-index:110;background:#000e;display:none;place-items:center;padding:4vw}
+.modal.open{display:grid}
+.modal .box{width:min(1100px,100%);aspect-ratio:16/9;position:relative;border:1px solid var(--line2)}
+.modal iframe{width:100%;height:100%;border:0}
+.modal .x{position:absolute;top:-46px;right:0;font-family:var(--mono);font-size:13px;letter-spacing:.2em;color:var(--mute)}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(34px);transition:opacity .9s cubic-bezier(.2,.8,.2,1),transform .9s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+.slits-anim{animation:glow 4s ease-in-out infinite}
+@keyframes glow{50%{filter:drop-shadow(0 0 60px #ff2f9e66)}}
+
+@media (max-width:1080px){
+  .svc-grid{grid-template-columns:repeat(2,1fr)}
+  .swap-cards{grid-template-columns:1fr}
+  .builder{grid-template-columns:1fr}.b-left{border-right:0;border-bottom:1px solid var(--line2)}
+  .process{grid-template-columns:1fr 1fr;gap:40px}.process::before{display:none}
+  .vid-grid{grid-template-columns:repeat(2,1fr)}
+  .merch-grid{grid-template-columns:repeat(2,1fr)}
+  .merch-hero,.about,.contact-grid{grid-template-columns:1fr;gap:50px}
+  .builds-grid>.build{grid-column:span 12!important;min-height:340px!important}
+  .vert-jp{display:none}
+}
+@media (max-width:780px){
+  .nav-links{position:fixed;inset:74px 0 auto 0;flex-direction:column;background:#050507f5;padding:30px;gap:22px;border-bottom:1px solid var(--line);transform:translateY(-130%);transition:.35s}
+  .nav-links.open{transform:none}
+  .burger{display:flex}
+  .sec{padding:90px 0}
+  .svc-grid,.merch-grid,.vid-grid{grid-template-columns:1fr}
+  .process{grid-template-columns:1fr}
+  .hero-bg .photo{width:100%;opacity:.3}
+  .field-row{grid-template-columns:1fr}
+  .b-left,.b-right{padding:28px 22px}
+  .about-img .stamp{right:10px}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ SVG DEFS: HOH LOGO + MOCKUPS ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="hohGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1f8bff"/><stop offset=".33" stop-color="#6a3dff"/>
+      <stop offset=".62" stop-color="#d42fd0"/><stop offset="1" stop-color="#ff2b4a"/>
+    </linearGradient>
+    <linearGradient id="kanaGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#19c6ff"/><stop offset=".45" stop-color="#8b3dff"/>
+      <stop offset=".75" stop-color="#ff2f9e"/><stop offset="1" stop-color="#ff2e3e"/>
+    </linearGradient>
+    <linearGradient id="iconGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#19c6ff"/><stop offset=".5" stop-color="#8b3dff"/><stop offset="1" stop-color="#ff2f9e"/>
+    </linearGradient>
+    <!-- horizontal "speed slits" that cut through the top of HOH, thicker toward the top -->
+    <mask id="slits" maskUnits="userSpaceOnUse" x="0" y="0" width="600" height="260">
+      <rect width="600" height="260" fill="#fff"/>
+      <rect y="38" width="600" height="7" fill="#000"/>
+      <rect y="54" width="600" height="6" fill="#000"/>
+      <rect y="69" width="600" height="5" fill="#000"/>
+      <rect y="82" width="600" height="4" fill="#000"/>
+      <rect y="94" width="600" height="3" fill="#000"/>
+      <rect y="105" width="600" height="2" fill="#000"/>
+    </mask>
+    <symbol id="hohLogo" viewBox="0 0 600 250">
+      <g transform="translate(36 0) skewX(-14)">
+        <text x="300" y="158" text-anchor="middle" font-family="Russo One" font-size="168" letter-spacing="2" fill="url(#hohGrad)" mask="url(#slits)" textLength="470" lengthAdjust="spacingAndGlyphs">HOH</text>
+      </g>
+      <g transform="translate(40 0) skewX(-14)">
+        <text x="300" y="222" text-anchor="middle" font-family="Noto Sans JP" font-weight="700" font-size="74" fill="url(#kanaGrad)" stroke="#050507" stroke-width="7" paint-order="stroke" textLength="520" lengthAdjust="spacingAndGlyphs">パフォーマンス</text>
+      </g>
+    </symbol>
+    <!-- mono white variant for merch on colored blanks -->
+    <symbol id="hohLogoMono" viewBox="0 0 600 250">
+      <g transform="translate(36 0) skewX(-14)">
+        <text x="300" y="158" text-anchor="middle" font-family="Russo One" font-size="168" letter-spacing="2" fill="currentColor" mask="url(#slits)" textLength="470" lengthAdjust="spacingAndGlyphs">HOH</text>
+      </g>
+      <g transform="translate(40 0) skewX(-14)">
+        <text x="300" y="222" text-anchor="middle" font-family="Noto Sans JP" font-weight="700" font-size="74" fill="#ff2f9e" textLength="520" lengthAdjust="spacingAndGlyphs">パフォーマンス</text>
+      </g>
+    </symbol>
+    <radialGradient id="fabShade" cx=".5" cy=".3" r=".8">
+      <stop offset="0" stop-color="#fff" stop-opacity=".10"/><stop offset="1" stop-color="#000" stop-opacity=".35"/>
+    </radialGradient>
+    <symbol id="hoodieShape" viewBox="0 0 400 440">
+      <path d="M118 74 Q200 44 282 74 L348 108 Q370 120 373 146 L388 330 Q389 347 373 349 L344 351 Q330 351 329 336 L318 196 L321 398 L79 398 L82 196 L71 336 Q70 351 56 351 L27 349 Q11 347 12 330 L27 146 Q30 120 52 108 Z"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="wrap">
+    <a href="#top" class="nav-logo" aria-label="HOH Performance home"><svg viewBox="0 0 600 250"><use href="#hohLogo"/></svg></a>
+    <div class="nav-links" id="navLinks">
+      <a href="#services">Services</a>
+      <a href="#swaps">Swaps</a>
+      <a href="#builds">Builds</a>
+      <a href="#videos">Videos</a>
+      <a href="#merch">Merch</a>
+      <a href="#" class="cart-btn" data-open-cart>Cart <span class="cart-count" id="cartCount">0</span></a>
+      <a href="#book" class="btn btn-grad btn-sm">Book a build</a>
+    </div>
+    <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" id="top">
+  <div class="hero-bg"><div class="photo"></div><div class="grid-floor"></div><div class="tint"></div></div>
+  <div class="vert-jp">本田専門</div>
+  <div class="wrap">
+    <div class="eyebrow">Honda specialist · Treybuilt</div>
+    <svg class="hero-logo slits-anim" viewBox="0 0 600 250" role="img" aria-label="HOH Performance パフォーマンス"><use href="#hohLogo"/></svg>
+    <h1>K-swaps. B-swaps. <span class="grad-text">Wiring that's actually right.</span></h1>
+    <p class="lead">Custom harnesses, diagnostics, full swaps, fab work and tunes for Civics, Integras, CRXs and everything Honda. If it's been to three shops and still isn't right, it ends up here.</p>
+    <div class="hero-ctas">
+      <a href="#swaps" class="btn btn-grad">Spec your swap <span>→</span></a>
+      <a href="#builds" class="btn btn-ghost">Watch the builds</a>
+    </div>
+    <div class="hero-tags">
+      <span class="tag"><b>K20 / K24</b> swaps</span>
+      <span class="tag"><b>B16 / B18C</b> swaps</span>
+      <span class="tag"><b>Tucked</b> harnesses</span>
+      <span class="tag"><b>Diag</b> + tunes</span>
+    </div>
+  </div>
+  <div class="scroll-cue">SCROLL<i></i></div>
+</header>
+
+<!-- TICKER -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track" id="ticker"></div>
+</div>
+
+<!-- SERVICES -->
+<section class="sec" id="services">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
+        <div class="sec-num">01 / SERVICES</div>
+        <h2 class="sec-title">What we do<span class="jp">サービス</span></h2>
+      </div>
+      <p class="sec-sub">Everything from one shop: the wiring, the swap, the fab and the tune. No passing the car around, no finger-pointing between shops.</p>
+    </div>
+    <div class="svc-grid">
+      <div class="svc rv"><span class="n">01</span><div class="ico"><svg viewBox="0 0 48 48"><path d="M4 14h10l6 10h8l6-10h10M4 34h10l6-10M44 34H34l-6-10"/><circle cx="4" cy="14" r="2"/><circle cx="44" cy="14" r="2"/><circle cx="4" cy="34" r="2"/><circle cx="44" cy="34" r="2"/></svg></div>
+        <h3>Custom Wiring</h3><div class="jp">配線</div><p>Tucked engine harnesses, swap conversion harnesses, mil-spec work, and fixing the wiring the last guy left behind. Done clean, labeled, and built to last.</p></div>
+      <div class="svc rv"><span class="n">02</span><div class="ico"><svg viewBox="0 0 48 48"><rect x="6" y="10" width="36" height="24" rx="2"/><path d="M10 26l6-8 6 5 6-9 6 6 4-3M18 40h12M24 34v6"/></svg></div>
+        <h3>Diagnostics</h3><div class="jp">診断</div><p>No-starts, CELs, overheating, intermittent gremlins. We trace it down to the wire and fix the cause instead of throwing parts at it.</p></div>
+      <div class="svc rv"><span class="n">03</span><div class="ico"><svg viewBox="0 0 48 48"><path d="M8 20h6v-6h20v6h6v16H8z"/><path d="M14 14V8h8M22 36v6M30 36v6M4 24h4M40 24h4M18 26h12"/></svg></div>
+        <h3>K-Swaps</h3><div class="jp">Kスワップ</div><p>K20 and K24 into EF, EG, EK, DC2 and more. Mounts, axles, shifter, cooling, fuel, harness and tune, sorted together.</p></div>
+      <div class="svc rv"><span class="n">04</span><div class="ico"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="16"/><circle cx="24" cy="24" r="5"/><path d="M24 8v6M24 34v6M8 24h6M34 24h6M12.7 12.7l4.3 4.3M31 31l4.3 4.3"/></svg></div>
+        <h3>B-Swaps</h3><div class="jp">Bスワップ</div><p>B16, B18C and B-series VTEC builds the classic way. Old-school high-rev feel, OBD conversions and clean installs.</p></div>
+      <div class="svc rv"><span class="n">05</span><div class="ico"><svg viewBox="0 0 48 48"><path d="M8 36a16 16 0 1 1 32 0"/><path d="M24 36l9-13"/><circle cx="24" cy="36" r="3"/><path d="M12 30h3M33 30h3M24 16v3"/></svg></div>
+        <h3>Tuning</h3><div class="jp">チューニング</div><p>Street and track tunes for swapped and stock Hondas. VTEC points, fueling and drivability, dialed in on your setup.</p></div>
+      <div class="svc rv"><span class="n">06</span><div class="ico"><svg viewBox="0 0 48 48"><path d="M6 38l14-14M20 24l6-6 10 10-6 6zM30 14l4-4 8 8-4 4"/><path d="M6 38l4 4"/></svg></div>
+        <h3>Fabrication</h3><div class="jp">製作</div><p>AN fuel lines, brackets, mounts and one-off parts made in-house for whatever the build needs.</p></div>
+      <div class="svc rv"><span class="n">07</span><div class="ico"><svg viewBox="0 0 48 48"><circle cx="16" cy="18" r="8"/><circle cx="32" cy="30" r="8"/><path d="M16 10v-4M16 30v-4M32 22v-4M32 42v-4M8 18H4M44 30h-4"/></svg></div>
+        <h3>Trans + LSD</h3><div class="jp">ミッション</div><p>K-series 6-speeds with LSD, built, refreshed and swapped. Fluid service, gear swaps, diff installs.</p></div>
+      <div class="svc rv"><span class="n">08</span><div class="ico"><svg viewBox="0 0 48 48"><rect x="10" y="16" width="28" height="22" rx="2"/><path d="M16 16V10h16v6M16 24h16M16 30h10"/></svg></div>
+        <h3>Engine Builds</h3><div class="jp">エンジン</div><p>Rebuilds and refreshes on D, B and K series, from stock-spec reliability to built internals.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SWAPS -->
+<section class="sec swaps" id="swaps">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
+        <div class="sec-num">02 / SWAP PROGRAMS</div>
+        <h2 class="sec-title">Pick your <span class="grad-text">heart</span><span class="jp">エンジンスワップ</span></h2>
+      </div>
+      <p class="sec-sub">Three ways in. Every swap gets quoted for your exact chassis, parts and goals. Use the spec builder below and send it straight to Trey.</p>
+    </div>
+    <div class="swap-cards">
+      <div class="swap rv">
+        <div class="big">B</div>
+        <div class="label">Old-school VTEC</div>
+        <h3>B-Swap</h3>
+        <div class="engines">B16A · B16B · B18C · B20 VTEC</div>
+        <div class="chassis"><span>EF</span><span>EG</span><span>EK</span><span>DC2</span><span>DA</span><span>CRX</span></div>
+        <ul>
+          <li>Engine mounts + mount kit install</li>
+          <li>Swap or conversion harness, tucked option</li>
+          <li>Axles, shifter cables/linkage, clutch</li>
+          <li>Cooling + fuel system checkout</li>
+          <li>Base tune and road test</li>
+        </ul>
+        <a href="#builder" class="btn btn-ghost" data-preset="B-Swap">Spec a B-Swap</a>
+      </div>
+      <div class="swap feat rv">
+        <span class="badge">Most requested</span>
+        <div class="big">K</div>
+        <div class="label">Modern torque</div>
+        <h3>K-Swap</h3>
+        <div class="engines">K20A · K20Z · K24A · K24Z</div>
+        <div class="chassis"><span>EF</span><span>EG</span><span>EK</span><span>DC2</span><span>EP3</span><span>CRX</span></div>
+        <ul>
+          <li>Mounts, axles, shifter box + cables</li>
+          <li>Custom K-swap harness, tucked or OEM-style</li>
+          <li>6-speed LSD trans setup</li>
+          <li>Radiator, hoses, AN fuel lines</li>
+          <li>Tune, VTEC dialed, road tested</li>
+        </ul>
+        <a href="#builder" class="btn btn-grad" data-preset="K-Swap">Spec a K-Swap</a>
+      </div>
+      <div class="swap rv">
+        <div class="big">日</div>
+        <div class="label">Restore + refresh</div>
+        <h3>JDM Build</h3>
+        <div class="engines">D-series · Rebuilds · Full projects</div>
+        <div class="chassis"><span>EF</span><span>EG</span><span>EK</span><span>DA</span><span>DC2</span><span>Any Honda</span></div>
+        <ul>
+          <li>Teardown, strip and assessment</li>
+          <li>Engine rebuild or refresh</li>
+          <li>Bushings, brakes, suspension</li>
+          <li>Valve covers done in Spoon yellow or wrinkle black</li>
+          <li>Rewire from the ground up</li>
+        </ul>
+        <a href="#builder" class="btn btn-ghost" data-preset="JDM Build">Spec a build</a>
+      </div>
+    </div>
+
+    <!-- SPEC BUILDER -->
+    <div class="builder rv" id="builder">
+      <div class="b-left">
+        <div class="sec-num">SPEC BUILDER</div>
+        <div class="b-title">Build your <span class="grad-text">swap sheet</span></div>
+        <div class="b-step"><h4><b>01</b>Chassis</h4><div class="chips" data-group="chassis">
+          <button class="chip">EF<small>88-91 Civic/CRX</small></button>
+          <button class="chip">EG<small>92-95 Civic</small></button>
+          <button class="chip on">EK<small>96-00 Civic</small></button>
+          <button class="chip">DA<small>90-93 Integra</small></button>
+          <button class="chip">DC2<small>94-01 Integra</small></button>
+          <button class="chip">EP3<small>02-05 Si</small></button>
+          <button class="chip">Other<small>tell us</small></button>
+        </div></div>
+        <div class="b-step"><h4><b>02</b>Program</h4><div class="chips" data-group="program">
+          <button class="chip on">K-Swap</button><button class="chip">B-Swap</button><button class="chip">JDM Build</button><button class="chip">Wiring only</button><button class="chip">Diag / tune</button>
+        </div></div>
+        <div class="b-step"><h4><b>03</b>Engine</h4><div class="chips" data-group="engine">
+          <button class="chip on">K20</button><button class="chip">K24</button><button class="chip">B16</button><button class="chip">B18C</button><button class="chip">B20 VTEC</button><button class="chip">D-series</button><button class="chip">Keep stock</button>
+        </div></div>
+        <div class="b-step"><h4><b>04</b>Goal</h4><div class="chips" data-group="goal">
+          <button class="chip on">Street</button><button class="chip">Daily</button><button class="chip">Track</button><button class="chip">Show</button>
+        </div></div>
+        <div class="b-step"><h4><b>05</b>Add-ons <span style="color:var(--dim)">(pick any)</span></h4><div class="chips" data-group="addons" data-multi>
+          <button class="chip on">Tucked harness</button><button class="chip">Tune</button><button class="chip">6-spd LSD</button><button class="chip">AN fuel</button><button class="chip">Engine rebuild</button><button class="chip">Wire tuck + bay clean</button>
+        </div></div>
+      </div>
+      <div class="b-right">
+        <div class="sec-num">YOUR SWAP SHEET</div>
+        <div class="spec" id="spec"></div>
+        <textarea id="specNotes" placeholder="Anything else? Current mods, what's broken, your timeline, budget..."></textarea>
+        <div class="b-actions">
+          <button class="btn btn-grad" id="sendSpec">Copy + DM Trey</button>
+          <a href="#book" class="btn btn-ghost" id="specToForm">Use booking form</a>
+        </div>
+        <div class="b-note">Copies your sheet, then opens an Instagram DM to @hohperformance. Paste and send.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div><div class="sec-num">03 / THE PROCESS</div><h2 class="sec-title">How it goes<span class="jp">プロセス</span></h2></div>
+      <p class="sec-sub">Have a vision, execute and go hard. Here's what happens from the first message to the keys back in your hand.</p>
+    </div>
+    <div class="process">
+      <div class="step rv"><div class="dot"><span>1</span></div><h4>Consult</h4><div class="jp">相談</div><p>Send your swap sheet or DM. We talk goals, budget and what the car needs.</p></div>
+      <div class="step rv"><div class="dot"><span>2</span></div><h4>Plan</h4><div class="jp">計画</div><p>Parts list, harness plan and a clear quote before anything gets touched.</p></div>
+      <div class="step rv"><div class="dot"><span>3</span></div><h4>Build</h4><div class="jp">製作</div><p>Fab, swap and wiring, with progress posted along the way.</p></div>
+      <div class="step rv"><div class="dot"><span>4</span></div><h4>Tune</h4><div class="jp">調整</div><p>Dialed in and road tested until it drives right.</p></div>
+      <div class="step rv"><div class="dot"><span>5</span></div><h4>Send it</h4><div class="jp">完成</div><p>Keys back, walk-through of the work, and support after.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- BUILDS -->
+<section class="sec" id="builds" style="padding-top:40px">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div><div class="sec-num">04 / PROJECT GARAGE</div><h2 class="sec-title">The builds<span class="jp">プロジェクト</span></h2></div>
+      <p class="sec-sub">Real cars, real hours, all on camera. Tap a build to watch it.</p>
+    </div>
+    <div class="builds-grid">
+      <article class="build rv" data-vid="ClKNlMhWJOw"><img src="assets/thumbs/ClKNlMhWJOw.jpg" alt="'91 Civic hatch build"><div class="play"><svg viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z"/></svg></div>
+        <div class="meta"><div class="code">EF · 1991 Civic Hatch</div><h3>Project '91 Hatch</h3><p>A red EF hatch from the ground up: dash out, bushings, engine rebuild and every wire accounted for.</p>
+        <div class="eps"><span>New project</span><span>Build begins</span><span>Dash removal</span><span>Bushings</span></div></div></article>
+      <article class="build rv" data-vid="_ZoW1EPDUFs"><img src="assets/thumbs/_ZoW1EPDUFs.jpg" alt="Stripping the coupe"><div class="play"><svg viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z"/></svg></div>
+        <div class="meta"><div class="code">EK · Civic Coupe</div><h3>Stripping the Coupe</h3><p>A three-part teardown, down to the shell.</p></div></article>
+      <article class="build rv" data-vid="Mmym2_jQbp8"><img src="assets/thumbs/Mmym2_jQbp8.jpg" alt="K series 6 speed LSD transmission"><div class="play"><svg viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z"/></svg></div>
+        <div class="meta"><div class="code">K-Series · Drivetrain</div><h3>6-Speed LSD Trans</h3><p>A three-part K-series gearbox series.</p></div></article>
+      <article class="build rv" data-vid="S-Q-tkuYrpY"><img src="assets/thumbs/S-Q-tkuYrpY.jpg" alt="AN fuel lines for the DA"><div class="play"><svg viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z"/></svg></div>
+        <div class="meta"><div class="code">DA · Integra</div><h3>AN Fuel for the DA</h3><p>Custom AN lines, made by hand.</p></div></article>
+      <article class="build rv" data-vid="yV28Iw_4nhk"><img src="assets/thumbs/yV28Iw_4nhk.jpg" alt="Tony's EK hatch"><div class="play"><svg viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z"/></svg></div>
+        <div class="meta"><div class="code">EK · Hatch</div><h3>Tony's EK, under $1K</h3><p>Proof you don't need a big budget to build something real.</p></div></article>
+      <article class="build rv" data-vid="nZ2QXw1NMEQ"><img src="assets/thumbs/nZ2QXw1NMEQ.jpg" alt="Spoon yellow valve covers"><div class="play"><svg viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z"/></svg></div>
+        <div class="meta"><div class="code">K + D · Detail</div><h3>Spoon Yellow Covers</h3><p>K and D valve covers in Spoon yellow and wrinkle black.</p></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEOS -->
+<section class="sec videos" id="videos">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div><div class="sec-num">05 / THE PEOPLE'S AUTO CHANNEL</div><h2 class="sec-title">Watch + learn<span class="jp">ビデオ</span></h2></div>
+      <div class="vid-filter chips" id="vidFilter">
+        <button class="chip on" data-f="all">All</button><button class="chip" data-f="build">Builds</button><button class="chip" data-f="howto">How-to</button><button class="chip" data-f="k">K-Series</button>
+      </div>
+    </div>
+    <div class="vid-grid" id="vidGrid"></div>
+    <div style="text-align:center;margin-top:50px" class="rv"><a class="btn btn-ghost" href="https://www.youtube.com/@hohperformance3032" target="_blank" rel="noopener">Subscribe on YouTube →</a></div>
+  </div>
+</section>
+
+<!-- MERCH -->
+<section class="sec" id="merch">
+  <div class="wrap">
+    <div class="merch-hero">
+      <div class="rv">
+        <div class="sec-num">06 / HOH SUPPLY</div>
+        <h2 class="sec-title">Wear the <span class="grad-text">shop</span><span class="jp">グッズ</span></h2>
+        <p class="sec-sub" style="margin-top:22px">Heavyweight blanks with the slit logo front and back, and katakana down the sleeve. Small runs, made for the people who know.</p>
+        <div class="hero-ctas" style="margin-top:30px"><a href="#merchGrid" class="btn btn-grad">Shop the drop</a></div>
+      </div>
+      <div class="rv" style="position:relative">
+        <svg viewBox="0 0 400 440" style="width:100%;max-width:520px;margin-left:auto;display:block;filter:drop-shadow(0 50px 60px #8b3dff44)">
+          <use href="#hoodieShape" fill="#0d0d12"/>
+          <path d="M150 74 Q200 30 250 74 Q232 104 200 106 Q168 104 150 74Z" fill="#050507"/>
+          <path d="M140 72 Q200 18 260 72" fill="none" stroke="#1d1d26" stroke-width="10"/>
+          <path d="M186 104 L183 168 M214 104 L217 168" stroke="#2a2a35" stroke-width="3"/>
+          <path d="M136 300 L264 300 L282 372 L118 372 Z" fill="none" stroke="#1e1e28" stroke-width="3"/>
+          <rect x="79" y="384" width="242" height="18" fill="#08080b"/>
+          <svg x="122" y="140" width="156" height="66" viewBox="0 0 600 250"><use href="#hohLogo"/></svg>
+          <use href="#hoodieShape" fill="url(#fabShade)"/>
+          <text x="352" y="210" font-family="Noto Sans JP" font-weight="700" font-size="15" fill="#ff2f9e" transform="rotate(86 352 210)">パフォーマンス</text>
+        </svg>
+      </div>
+    </div>
+    <div class="merch-grid" id="merchGrid"></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="sec" style="padding-top:40px">
+  <div class="wrap about">
+    <div class="about-img rv"><div class="ph"></div><div class="frame"></div><div class="stamp grad-text">本田魂</div></div>
+    <div class="rv">
+      <div class="sec-num">07 / TREYBUILT</div>
+      <h2 style="margin-top:12px">The go-to <span class="grad-text">Honda guy</span></h2>
+      <blockquote>"Builder. Fabricator. Dreamer. Have a vision, execute and go hard."</blockquote>
+      <p>HOH Performance is the shop people end up at when the wiring's a mess, the swap is half done, or nobody else can find the problem. Trey has been building Hondas hands-on, from teardown to tune, and putting the whole process on camera for the community.</p>
+      <p>EF hatches, EK coupes, DA Integras, K-series gearboxes, D-series rebuilds. If it's Honda, it's in scope.</p>
+      <div class="creds">
+        <div><b class="grad-text">K · B · D</b><span>Engine families</span></div>
+        <div><b class="grad-text">In-house</b><span>Wiring + fab</span></div>
+        <div><b class="grad-text">On camera</b><span>Every build</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="sec contact" id="book">
+  <div class="wrap contact-grid">
+    <div class="rv">
+      <div class="sec-num">08 / BOOK A BUILD</div>
+      <h2 style="margin-top:14px">Let's build <span class="grad-text">yours.</span></h2>
+      <p class="sec-sub" style="margin-top:22px">Swap, harness, diag or tune. Tell us about the car and we'll get back to you with a plan.</p>
+      <div class="links">
+        <a href="https://www.instagram.com/hohperformance/" target="_blank" rel="noopener">Instagram DM <small>@hohperformance →</small></a>
+        <a href="https://www.youtube.com/@hohperformance3032" target="_blank" rel="noopener">YouTube <small>HOH Performance →</small></a>
+        <a href="https://www.threads.net/@hohperformance" target="_blank" rel="noopener">Threads <small>@hohperformance →</small></a>
+      </div>
+    </div>
+    <form class="form rv" id="bookForm">
+      <div class="field-row">
+        <div class="field"><label>Name</label><input name="name" required placeholder="Your name"></div>
+        <div class="field"><label>Phone / IG</label><input name="contact" required placeholder="@handle or number"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Car</label><input name="car" placeholder="e.g. 1998 Civic EK hatch"></div>
+        <div class="field"><label>Service</label><select name="service"><option>K-Swap</option><option>B-Swap</option><option>Custom wiring / harness</option><option>Diagnostics</option><option>Tune</option><option>Fabrication</option><option>Engine / trans build</option><option>Full project</option></select></div>
+      </div>
+      <div class="field"><label>Details</label><textarea name="details" id="bookDetails" placeholder="What's the car doing, what do you want it to do?"></textarea></div>
+      <button class="btn btn-grad" type="submit" style="justify-content:center">Send request →</button>
+      <div class="b-note">Copies your request and opens an Instagram DM. Paste and send.</div>
+    </form>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="fl"><svg viewBox="0 0 600 250"><use href="#hohLogo"/></svg></div>
+    <small>© <span id="yr"></span> HOH Performance · Treybuilt · Honda specialists</small>
+    <small><a href="#top">Back to top ↑</a></small>
+  </div>
+  <div class="giant">HOH</div>
+</footer>
+
+<!-- cart drawer -->
+<div class="drawer-bg" id="drawerBg"></div>
+<aside class="drawer" id="drawer" aria-label="Cart">
+  <header><h3>Your <span class="grad-text">cart</span></h3><button data-close-cart class="mono" style="font-size:13px;letter-spacing:.2em;color:var(--mute)">CLOSE ✕</button></header>
+  <div class="items" id="cartItems"></div>
+  <footer>
+    <div class="total"><span>Subtotal</span><span id="cartTotal">$0</span></div>
+    <button class="btn btn-grad" id="checkout" style="width:100%;justify-content:center">Reserve via DM</button>
+    <div class="b-note" style="text-align:center">Small-batch drop. Reservations are confirmed over DM.</div>
+  </footer>
+</aside>
+
+<div class="modal" id="modal"><div class="box"><button class="x" id="modalX">CLOSE ✕</button><div id="modalBody" style="width:100%;height:100%"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const IG_DM="https://ig.me/m/hohperformance";
+$('#yr').textContent=new Date().getFullYear();
+
+/* nav */
+addEventListener('scroll',()=>$('#nav').classList.toggle('scrolled',scrollY>30),{passive:true});
+$('#burger').onclick=()=>$('#navLinks').classList.toggle('open');
+$$('#navLinks a').forEach(a=>a.addEventListener('click',()=>$('#navLinks').classList.remove('open')));
+
+/* ticker */
+const tickWords=["K20A","K24","B16A","B18C","D16","Tucked harness","スワップ","EF Hatch","EK Coupe","DC2","DA Integra","6-Speed LSD","AN fuel","Spoon yellow","パフォーマンス","VTEC","Diagnostics","Treybuilt"];
+const tt=tickWords.map(w=>`<span class="${/[^\x00-\x7F]/.test(w)?'jp':''}">${w}</span>`).join('');
+$('#ticker').innerHTML=tt+tt;
+
+/* toast */
+let tTimer;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tTimer);tTimer=setTimeout(()=>t.classList.remove('show'),2600)}
+async function copyAndDM(text,msg){
+  try{await navigator.clipboard.writeText(text)}catch(e){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove()}
+  toast(msg||'Copied. Opening Instagram DM...');setTimeout(()=>window.open(IG_DM,'_blank','noopener'),700);
+}
+
+/* spec builder */
+const state={};
+function readChips(){$$('.builder .chips').forEach(g=>{const on=$$('.chip.on',g).map(c=>c.childNodes[0].textContent.trim());state[g.dataset.group]=g.hasAttribute('data-multi')?on:on[0]||'-'});renderSpec()}
+function renderSpec(){
+  const rows=[["Chassis",state.chassis],["Program",state.program],["Engine",state.engine],["Goal",state.goal],["Add-ons",(state.addons||[]).join(', ')||'None']];
+  $('#spec').innerHTML=rows.map(r=>`<div class="row"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('');
+}
+function specText(){return `HOH SWAP SHEET\nChassis: ${state.chassis}\nProgram: ${state.program}\nEngine: ${state.engine}\nGoal: ${state.goal}\nAdd-ons: ${(state.addons||[]).join(', ')||'None'}\nNotes: ${$('#specNotes').value||'-'}`}
+$$('.builder .chips').forEach(g=>g.addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;
+  if(g.hasAttribute('data-multi'))c.classList.toggle('on');else{$$('.chip',g).forEach(x=>x.classList.remove('on'));c.classList.add('on')}
+  if(g.dataset.group==='program'){const map={"K-Swap":"K20","B-Swap":"B18C","JDM Build":"D-series","Wiring only":"Keep stock","Diag / tune":"Keep stock"};const want=map[c.textContent.trim()];$$('[data-group=engine] .chip').forEach(x=>x.classList.toggle('on',x.textContent.trim()===want))}
+  readChips()}));
+$$('[data-preset]').forEach(b=>b.addEventListener('click',()=>{const p=b.dataset.preset;const chip=$$('[data-group=program] .chip').find(c=>c.textContent.trim()===p);chip&&chip.click()}));
+$('#sendSpec').onclick=()=>copyAndDM(specText(),'Swap sheet copied. Opening DM...');
+$('#specToForm').onclick=()=>{$('#bookDetails').value=specText();const s=$('[name=service]');const o=[...s.options].find(o=>o.text===state.program);if(o)s.value=o.text};
+readChips();
+
+/* builds -> modal */
+function openVideo(id){$('#modalBody').innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;$('#modal').classList.add('open')}
+function closeVideo(){$('#modal').classList.remove('open');$('#modalBody').innerHTML=''}
+$('#modalX').onclick=closeVideo;$('#modal').onclick=e=>{if(e.target.id==='modal')closeVideo()};
+addEventListener('keydown',e=>{if(e.key==='Escape'){closeVideo();closeCart()}});
+$$('.build').forEach(b=>b.onclick=()=>openVideo(b.dataset.vid));
+
+/* video grid */
+const vids=[
+ ["i7vkijWTOqM","New Project: '91 Civic Hatch","build"],["ClKNlMhWJOw","'91 Civic Hatch Build Begins","build"],
+ ["WhQ4Xvju54c","How to Remove the Dash from an 88-91 Civic Hatch","howto"],["hoOip6ZrAGI","Replacing Bushings on the EF","howto build"],
+ ["UeEBCKH34so","Rebuilding the Engine on the Hatch","build"],["_ZoW1EPDUFs","Stripping the Coupe","build"],
+ ["a_Bbv9DcaME","Stripping the Coupe, Part 3","build"],["a1WR7JeAoWA","Build Panda, Part 4","build"],
+ ["Mmym2_jQbp8","K-Series 6-Speed LSD Trans, Pt 1","k"],["0zV95Ok1K9Y","K-Series 6-Speed LSD Trans, Pt 2","k"],
+ ["jNGHGu1eUds","K-Series 6-Speed LSD Trans, Pt 3","k"],["S-Q-tkuYrpY","How I Made the AN Fuel Lines for the DA","howto"],
+ ["nZ2QXw1NMEQ","Painting K + D Valve Covers Spoon Yellow + Wrinkle Black","howto k"],["HqigTak5RvY","How to Check Honda Distributors","howto"],
+ ["yV28Iw_4nhk","Tony's EK Hatch for Under $1000","build"],["FT5MtKYLV5U","Stripping the EJ, Part 2","build"]
+];
+const catLabel={build:"Build series",howto:"How-to",k:"K-Series"};
+$('#vidGrid').innerHTML=vids.map(([id,t,c])=>`<div class="vid rv" data-c="${c}" data-id="${id}"><div class="th"><img loading="lazy" src="assets/thumbs/${id}.jpg" alt=""><div class="play"><svg viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z"/></svg></div></div><h4>${t}</h4><div class="cat">${c.split(' ').map(x=>catLabel[x]).join(' · ')}</div></div>`).join('');
+$$('.vid').forEach(v=>v.onclick=()=>openVideo(v.dataset.id));
+$('#vidFilter').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;$$('#vidFilter .chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');const f=c.dataset.f;$$('.vid').forEach(v=>v.classList.toggle('hide',f!=='all'&&!v.dataset.c.split(' ').includes(f)))});
+
+/* ===== MERCH ===== */
+const logo=(x,y,w,mono)=>`<svg x="${x}" y="${y}" width="${w}" height="${w*250/600}" viewBox="0 0 600 250" ${mono?`style="color:${mono}"`:''}><use href="#${mono?'hohLogoMono':'hohLogo'}"/></svg>`;
+const mocks={
+ hoodie:(col,side)=>`<svg class="mock" viewBox="0 0 400 440"><use href="#hoodieShape" fill="${col}"/>
+   ${side==='back'
+     ? `<path d="M132 78 Q200 4 268 78 Q200 100 132 78Z" fill="${col}"/><path d="M132 78 Q200 4 268 78 Q200 100 132 78Z" fill="#0002" stroke="#0004" stroke-width="2"/>${logo(70,120,260)}<text x="200" y="290" text-anchor="middle" font-family="Chakra Petch" font-weight="700" font-size="17" letter-spacing="6" fill="${col==='#f1efe9'?'#111':'#e9e7f2'}">K · B · WIRING · TUNES</text><text x="200" y="314" text-anchor="middle" font-family="JetBrains Mono" font-size="11" letter-spacing="4" fill="#ff2f9e">TREYBUILT</text>`
+     : `<path d="M140 72 Q200 18 260 72" fill="none" stroke="${col}" stroke-width="12"/><path d="M140 72 Q200 18 260 72" fill="none" stroke="#0003" stroke-width="12"/><path d="M150 74 Q200 30 250 74 Q232 104 200 106 Q168 104 150 74Z" fill="#0006"/><path d="M186 104 L183 168 M214 104 L217 168" stroke="#0005" stroke-width="3"/><path d="M136 300 L264 300 L282 372 L118 372 Z" fill="none" stroke="#0004" stroke-width="3"/>${logo(122,140,156)}`}
+   <rect x="79" y="384" width="242" height="16" fill="#0003"/><use href="#hoodieShape" fill="url(#fabShade)"/></svg>`,
+ tee:(col,side)=>`<svg class="mock" viewBox="0 0 400 440"><path d="M132 62 Q200 92 268 62 L346 94 L382 168 L330 190 L316 164 L318 410 L82 410 L84 164 L70 190 L18 168 L54 94 Z" fill="${col}"/>
+   <path d="M150 64 Q200 98 250 64" fill="none" stroke="#0004" stroke-width="7"/>
+   ${side==='back'?`<text x="200" y="140" text-anchor="middle" font-family="Noto Sans JP" font-weight="900" font-size="46" fill="url(#kanaGrad)">パフォーマンス</text>${logo(105,170,190)}<text x="200" y="305" text-anchor="middle" font-family="JetBrains Mono" font-size="11" letter-spacing="4" fill="${col==='#f1efe9'?'#333':'#aaa'}">BUILDER · FABRICATOR · DREAMER</text>`:logo(225,118,92)}
+   <path d="M132 62 Q200 92 268 62 L346 94 L382 168 L330 190 L316 164 L318 410 L82 410 L84 164 L70 190 L18 168 L54 94 Z" fill="url(#fabShade)"/></svg>`,
+ hat:(col)=>`<svg class="mock" viewBox="0 0 400 400"><path d="M82 250 Q86 98 200 92 Q314 98 318 250 Z" fill="${col}"/><path d="M200 92 L200 250 M140 104 Q122 170 120 250 M260 104 Q278 170 280 250" stroke="#0003" stroke-width="2" fill="none"/>
+   <path d="M58 248 Q200 214 342 248 Q356 280 332 286 Q200 256 68 286 Q44 280 58 248Z" fill="${col}" stroke="#0005" stroke-width="2"/><circle cx="200" cy="94" r="7" fill="${col}" stroke="#0004"/>
+   ${logo(112,150,176)}<path d="M82 250 Q86 98 200 92 Q314 98 318 250 Z" fill="url(#fabShade)"/></svg>`,
+ sticker:()=>`<svg class="mock" viewBox="0 0 400 400"><g transform="rotate(-8 200 200)"><rect x="40" y="120" width="320" height="160" rx="22" fill="#fff"/><rect x="50" y="130" width="300" height="140" rx="16" fill="#050507"/>${logo(66,138,268)}</g>
+   <g transform="rotate(10 280 300)"><rect x="210" y="270" width="150" height="70" rx="12" fill="#fff"/><rect x="216" y="276" width="138" height="58" rx="9" fill="url(#hohGrad)"/><text x="285" y="314" text-anchor="middle" font-family="Russo One" font-size="22" fill="#fff">TREYBUILT</text></g></svg>`,
+ fresh:()=>`<svg class="mock" viewBox="0 0 400 400"><path d="M200 40 L200 92" stroke="#888" stroke-width="2"/><circle cx="200" cy="96" r="7" fill="none" stroke="#ccc" stroke-width="3"/>
+   <path d="M120 104 L280 104 L300 330 Q200 372 100 330 Z" fill="#050507" stroke="url(#hohGrad)" stroke-width="5"/>${logo(118,170,164)}
+   <text x="200" y="290" text-anchor="middle" font-family="JetBrains Mono" font-size="12" letter-spacing="3" fill="#ff2f9e">VTEC SCENT</text></svg>`,
+ banner:()=>`<svg class="mock" viewBox="0 0 400 400"><rect x="20" y="110" width="360" height="180" fill="#050507" stroke="#222"/><rect x="20" y="110" width="360" height="6" fill="url(#hohGrad)"/><rect x="20" y="284" width="360" height="6" fill="url(#hohGrad)"/>
+   ${logo(60,128,280)}<circle cx="34" cy="124" r="5" fill="#666"/><circle cx="366" cy="124" r="5" fill="#666"/><circle cx="34" cy="276" r="5" fill="#666"/><circle cx="366" cy="276" r="5" fill="#666"/></svg>`
+};
+const products=[
+ {id:"hood",name:"Slit Logo Hoodie",sub:"14oz heavyweight · front + back print",price:75,mock:"hoodie",cols:["#0d0d12","#1c1430","#f1efe9"],sizes:["S","M","L","XL","2XL"],flip:true,drop:"Drop 01"},
+ {id:"tee",name:"パフォーマンス Tee",sub:"Boxy fit · katakana back hit",price:38,mock:"tee",cols:["#0d0d12","#f1efe9","#3b0d22"],sizes:["S","M","L","XL","2XL"],flip:true},
+ {id:"hat",name:"HOH Snapback",sub:"Structured · embroidered",price:34,mock:"hat",cols:["#0d0d12","#1a1a24","#f1efe9"],sizes:["OS"]},
+ {id:"stk",name:"Slap Pack",sub:"Die-cut vinyl · 2 stickers",price:10,mock:"sticker",cols:[],sizes:["OS"]},
+ {id:"frs",name:"VTEC Air Freshener",sub:"Mirror hang · 3-pack",price:12,mock:"fresh",cols:[],sizes:["OS"]},
+ {id:"ban",name:"Shop Banner",sub:"3x6 ft vinyl · grommets",price:45,mock:"banner",cols:[],sizes:["OS"]}
+];
+const pState={};
+$('#merchGrid').innerHTML=products.map(p=>{pState[p.id]={col:p.cols[0]||null,size:p.sizes.length>1?p.sizes[2]:p.sizes[0],side:'front'};return `
+ <div class="prod rv" data-id="${p.id}">
+  <div class="stage">${p.drop?`<span class="drop">${p.drop}</span>`:''}<div class="mockwrap" style="width:100%;height:100%;display:grid;place-items:center"></div>${p.flip?`<button class="flip">↻ View back</button>`:''}</div>
+  <div class="info">
+   <div class="top"><div><h3>${p.name}</h3><div class="sub">${p.sub}</div></div><div class="price">$${p.price}</div></div>
+   ${p.cols.length?`<div class="swatches">${p.cols.map((c,i)=>`<button class="sw ${i?'':'on'}" style="background:${c}" data-col="${c}" aria-label="color"></button>`).join('')}</div>`:''}
+   ${p.sizes.length>1?`<div class="sizes">${p.sizes.map(s=>`<button class="sz ${s===pState[p.id].size?'on':''}">${s}</button>`).join('')}</div>`:''}
+   <button class="btn btn-grad btn-sm add">Add to cart</button>
+  </div></div>`}).join('');
+function drawProd(id){const p=products.find(x=>x.id===id),s=pState[id],el=$(`.prod[data-id=${id}]`);$('.mockwrap',el).innerHTML=mocks[p.mock](s.col,s.side);const f=$('.flip',el);if(f)f.textContent=s.side==='front'?'↻ View back':'↻ View front'}
+products.forEach(p=>drawProd(p.id));
+$('#merchGrid').addEventListener('click',e=>{const card=e.target.closest('.prod');if(!card)return;const id=card.dataset.id,s=pState[id];
+ if(e.target.closest('.sw')){s.col=e.target.dataset.col;$$('.sw',card).forEach(x=>x.classList.toggle('on',x===e.target));drawProd(id)}
+ if(e.target.closest('.sz')){s.size=e.target.textContent;$$('.sz',card).forEach(x=>x.classList.toggle('on',x===e.target))}
+ if(e.target.closest('.flip')){s.side=s.side==='front'?'back':'front';drawProd(id)}
+ if(e.target.closest('.add')){addToCart(id)}
+});
+
+/* cart */
+let cart=JSON.parse(localStorage.getItem('hohCart')||'[]');
+const colName={"#0d0d12":"Black","#1c1430":"Midnight Purple","#f1efe9":"Bone","#3b0d22":"Wine","#1a1a24":"Charcoal"};
+function saveCart(){localStorage.setItem('hohCart',JSON.stringify(cart));renderCart()}
+function addToCart(id){const s=pState[id];const key=id+s.col+s.size;const ex=cart.find(i=>i.key===key);ex?ex.q++:cart.push({key,id,col:s.col,size:s.size,q:1});saveCart();toast(`${products.find(p=>p.id===id).name} added`);openCart()}
+function renderCart(){
+ const n=cart.reduce((a,i)=>a+i.q,0);$('#cartCount').textContent=n;
+ const tot=cart.reduce((a,i)=>a+i.q*products.find(p=>p.id===i.id).price,0);$('#cartTotal').textContent='$'+tot;
+ $('#cartItems').innerHTML=cart.length?cart.map((i,k)=>{const p=products.find(x=>x.id===i.id);return `<div class="citem"><div class="mini">${mocks[p.mock](i.col,'front')}</div><div><h5>${p.name}</h5><small>${[colName[i.col],i.size!=='OS'?i.size:''].filter(Boolean).join(' · ')}</small><div class="qty"><button data-q="-1" data-k="${k}">−</button>${i.q}<button data-q="1" data-k="${k}">+</button></div></div><div class="mono">$${p.price*i.q}</div></div>`}).join(''):'<div class="empty">Cart is empty.<br>Go grab a hoodie.</div>';
+}
+$('#cartItems').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(!b)return;const it=cart[b.dataset.k];it.q+=+b.dataset.q;if(it.q<1)cart.splice(b.dataset.k,1);saveCart()});
+function openCart(){$('#drawer').classList.add('open');$('#drawerBg').classList.add('open')}
+function closeCart(){$('#drawer').classList.remove('open');$('#drawerBg').classList.remove('open')}
+$$('[data-open-cart]').forEach(a=>a.onclick=e=>{e.preventDefault();openCart()});
+$('[data-close-cart]').onclick=closeCart;$('#drawerBg').onclick=closeCart;
+$('#checkout').onclick=()=>{if(!cart.length)return toast('Cart is empty');
+ const txt="HOH MERCH ORDER\n"+cart.map(i=>{const p=products.find(x=>x.id===i.id);return `- ${i.q}x ${p.name} ${[colName[i.col],i.size!=='OS'?i.size:''].filter(Boolean).join(' / ')} ($${p.price*i.q})`}).join('\n')+"\nTotal: "+$('#cartTotal').textContent;
+ copyAndDM(txt,'Order copied. Opening DM...')};
+renderCart();
+
+/* booking form */
+$('#bookForm').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);
+ copyAndDM(`HOH BOOKING REQUEST\nName: ${f.get('name')}\nContact: ${f.get('contact')}\nCar: ${f.get('car')}\nService: ${f.get('service')}\n${f.get('details')}`,'Request copied. Opening DM...')};
+
+/* reveal */
+const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}}),{threshold:.12});
+function watch(){$$('.rv:not(.in)').forEach((el,i)=>{el.style.transitionDelay=(i%4)*70+'ms';io.observe(el)})}
+watch();
+</script>
+</body>
+</html>
